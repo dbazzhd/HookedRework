@@ -25,6 +25,8 @@ public class Boat : Transformable {
 	void Update ()
     {
         statemachine.ExecuteStateUpdate();
+
+        //For testing
         if (Input.GetKeyDown(KeyCode.E))
         {
             statemachine.ChangeState(new StateTravelTo(this, statemachine, GameObject.Find("CubePoint").transform.position, true, false));
@@ -33,13 +35,6 @@ public class Boat : Transformable {
         {
             statemachine.ChangeState(new StateRotateAroundY(this.gameObject, statemachine, 1.0f));
         }        
-        /*
-         
-        move: Accel then apply flat velo
-        if sign(mouse pos - boat pos ) != sign 
-         
-         */
-
     }
 
 }
