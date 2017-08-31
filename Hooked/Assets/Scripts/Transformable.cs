@@ -33,6 +33,8 @@ public class Transformable : MonoBehaviour
     public virtual float Velocity
     {
         get { return velocity; }
-        set { velocity = value; }
+        set {
+           velocity = value;
+        }
     }
 }

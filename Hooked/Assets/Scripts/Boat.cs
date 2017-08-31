@@ -10,8 +10,6 @@ public class Boat : Transformable {
     private float interalMaxVelocity;
     [SerializeField]
     private float internalDeceleration;
-    [SerializeField]
-    private float internalVelocity;
 
     private StateMachine statemachine = new StateMachine();
     private bool inBounds;
@@ -20,7 +18,6 @@ public class Boat : Transformable {
     {
         Acceleration = new Vector2(interalAcceleration, internalDeceleration);
         MaxVelocity = interalMaxVelocity;
-        Velocity = internalVelocity;
         inBounds = true;
     }
 	
@@ -28,6 +25,21 @@ public class Boat : Transformable {
 	void Update ()
     {
         statemachine.ExecuteStateUpdate();
-	}
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            statemachine.ChangeState(new StateTravelTo(this, statemachine, GameObject.Find("CubePoint").transform.position, true, false));
+        }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            statemachine.ChangeState(new StateRotateAroundY(this.gameObject, statemachine, 1.0f));
+        }        
+        /*
+         
+        move: Accel then apply flat velo
+        if sign(mouse pos - boat pos ) != sign 
+         
+         */
+
+    }
 
 }

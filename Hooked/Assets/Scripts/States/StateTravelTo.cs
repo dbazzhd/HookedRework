@@ -5,26 +5,28 @@ using UnityEngine;
 public class StateTravelTo : IState
 {
     private Transformable owner;
-    private Transform target;
+    private Vector3 target;
     private Vector3 origin;
     private StateMachine machine;
     private float halfDestination;
     private bool useLerpTrueUseFlatFalse;
     private float lerpTimer;
     private float lerpDuration;
+    private bool interuptable;
 
-    public StateTravelTo(Transformable pOwner, StateMachine pMachine, Transform pTarget, bool pUseLerpTrueUseFlatFalse, float pLerpDuration = 1.0f)
+    public StateTravelTo(Transformable pOwner, StateMachine pMachine, Vector3 pTarget, bool pInteruptable, bool pUseLerpTrueUseFlatFalse, float pLerpDuration = 1.0f)
     {
         owner = pOwner;
         machine = pMachine;
         target = pTarget;
         useLerpTrueUseFlatFalse = pUseLerpTrueUseFlatFalse;
         lerpDuration = pLerpDuration;
+        interuptable = pInteruptable;
     }
 
     public void Enter()
     {
-        halfDestination = (target.position - owner.transform.position).magnitude / 2;
+        halfDestination = (target- owner.transform.position).magnitude / 2;
         origin = owner.transform.position;
         lerpTimer = 0.0f;
     }
@@ -43,7 +45,14 @@ public class StateTravelTo : IState
 
     private void flatMovement()
     {
-        Vector3 differenceVector = target.position - owner.transform.position;
+        Vector3 differenceVector = owner.transform.position - target;
+        Debug.Log("diff: " + differenceVector + " | vel: " + owner.Velocity + " | scrnPnt: " + MouseAndTouch.GetWorldPoint() + " | owner pos: " + owner.transform.position);
+
+        if (interuptable == true && Mathf.Sign((owner.transform.position - MouseAndTouch.GetWorldPoint()).x) != Mathf.Sign(differenceVector.x))
+        {
+            machine.ChangeState(new StateRotateAroundY(owner.gameObject, machine, 1.0f));
+        }
+
         if (differenceVector.magnitude > halfDestination)
         {
             owner.Velocity += owner.Acceleration.x;
@@ -56,7 +65,7 @@ public class StateTravelTo : IState
         }
         if (differenceVector.magnitude < owner.Acceleration.y || owner.Velocity == 0)
         {
-            owner.transform.position = target.position;
+            owner.transform.position = target;
             machine.ChangeState(new StateStationary());
         }
         owner.gameObject.transform.Translate(differenceVector.normalized * owner.Velocity);
@@ -68,11 +77,11 @@ public class StateTravelTo : IState
         if (lerpTimer <= lerpDuration)
         {
             float lerp = lerpTimer / lerpDuration;
-            owner.transform.position = Vector3.Lerp(origin, target.position, lerp);
+            owner.transform.position = Vector3.Lerp(origin, target, lerp);
         }
         else
         {
-            owner.transform.position = target.position;
+            owner.transform.position = target;
             machine.ChangeState(new StateStationary());
 
         }
@@ -81,7 +90,7 @@ public class StateTravelTo : IState
     public void Exit()
     {
         halfDestination = 0.0f;
-        target = null;
+        target = Vector3.zero;
         owner.Velocity = 0.0f;
         lerpTimer = 0.0f;
     }
